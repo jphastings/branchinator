@@ -9,6 +9,9 @@ gem "platform-api", "~> 0.2"
 gem "hashie", "~> 3.4"
 gem "git", "~> 1.2"
 
+gem "resque", "~> 1.25"
+gem "resque-lock", "~> 1.1"
+
 group :development, :test do
   gem "dotenv", "~> 1.0"
   gem "rspec", "~> 3.0"

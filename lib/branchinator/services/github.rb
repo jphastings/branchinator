@@ -1,3 +1,4 @@
+require "branchinator/jobs"
 require "hashie"
 require "json"
 require "zlib"
@@ -5,11 +6,11 @@ require "zlib"
 module Branchinator
   module Services
     class Github
-      def initialize(event, payload, hosting_provider)
+      def initialize(event, payload, jobs)
         @event = event
         payload = JSON.parse(payload) if payload.is_a?(String)
         @payload = Hashie::Mash.new(payload)
-        @hosting_provider = hosting_provider
+        @jobs = jobs
       end
 
       def enact
@@ -22,20 +23,22 @@ module Branchinator
 
       def enact_create
         raise NotImplementedError, "Only branch creations are implemented" unless @payload.ref_type == "branch"
-        url = @hosting_provider.find_or_create_app(app_name_for(@payload.repository, @payload.ref))['web_url']
-        puts "App created at #{url} for #{@payload.ref} on #{@payload.repository.name}"
+        app_name = app_name_for(@payload.repository, @payload.ref)
+        @jobs.enqueue(Jobs::CreateApp, app_name: app_name)
       end
 
       def enact_push
         raise NotImplementedError, "Cannot determine the branch from the ref" unless ref = @payload.ref.match(%r{^refs/heads/(?<branch>.*)$})
         app_name = app_name_for(@payload.repository, ref['branch'])
-        return @hosting_provider.destroy_app(app_name) if @payload.deleted
-
-        @hosting_provider.deploy(
-          app_name: app_name,
-          git_url: @payload.repository.git_url,
-          commit: @payload.after
-        )
+        if @payload.deleted
+          @jobs.enqueue(Jobs::DeleteApp, app_name: app_name)
+        else
+          @jobs.enqueue(Jobs::DeployApp,
+            app_name: app_name,
+            git_url: @payload.repository.git_url,
+            commit: @payload.after
+          )
+        end
       end
 
       def app_name_for(repo, branch_name)
