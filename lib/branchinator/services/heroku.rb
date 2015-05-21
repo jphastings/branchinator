@@ -19,7 +19,7 @@ module Branchinator
         @heroku.app.delete(app_name)
       end
 
-      def deploy(app_name:, git_url:, commit: )
+      def deploy(app_name:, git_url:, commit:)
         puts "Deploying #{app_name}"
         app = find_or_create_app(app_name)
         Dir.mktmpdir do |dir|
