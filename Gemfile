@@ -5,6 +5,9 @@ gem "sinatra", "~> 1.4"
 gem "rake", "~> 10.1"
 gem "foreman", "~> 0.77"
 gem "puma", "~> 2.11"
+gem "platform-api", "~> 0.2"
+gem "hashie", "~> 3.4"
+gem "git", "~> 1.2"
 
 group :development, :test do
   gem "dotenv", "~> 1.0"

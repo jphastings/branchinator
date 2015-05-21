@@ -3,8 +3,23 @@ GEM
   specs:
     diff-lcs (1.2.5)
     dotenv (1.0.2)
+    erubis (2.7.0)
+    excon (0.45.3)
     foreman (0.78.0)
       thor (~> 0.19.1)
+    git (1.2.9.1)
+    hashie (3.4.1)
+    heroics (0.0.14)
+      erubis (~> 2.7.0)
+      excon
+      moneta
+      multi_json (>= 1.9.2)
+      netrc
+    moneta (0.8.0)
+    multi_json (1.11.0)
+    netrc (0.10.3)
+    platform-api (0.2.0)
+      heroics (~> 0.0.10)
     puma (2.11.3)
       rack (>= 1.1, < 2.0)
     rack (1.6.1)
@@ -37,6 +52,9 @@ PLATFORMS
 DEPENDENCIES
   dotenv (~> 1.0)
   foreman (~> 0.77)
+  git (~> 1.2)
+  hashie (~> 3.4)
+  platform-api (~> 0.2)
   puma (~> 2.11)
   rake (~> 10.1)
   rspec (~> 3.0)

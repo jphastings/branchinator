@@ -1,3 +1,5 @@
-require File.join(File.dirname(__FILE__), 'app/webapp.rb')
+$LOAD_PATH << "app"
+$LOAD_PATH << "lib"
+require "webapp"
 
 run Branchinator::WebApp

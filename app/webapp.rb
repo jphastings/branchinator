@@ -1,15 +1,27 @@
 require "sinatra/base"
-require "digest/md5"
+require "branchinator/services/github"
+require "branchinator/services/heroku"
 
 module Branchinator
   class WebApp < Sinatra::Base
+    configure do
+      set :hoster, Services::Heroku.new
+    end
+
     post "/hooks/github" do
       request.body.rewind
-      data = request.body.read
-      open("data/#{Digest::SHA256.hexdigest(data)}.bin", "w") do |f|
-        f.write data
+      
+      begin
+        Services::Github.new(
+          env['HTTP_X_GITHUB_EVENT'],
+          request.body.read,
+          settings.hoster
+        ).enact
+
+        halt 200
+      rescue
+        raise
       end
-      ""
     end
   end
 end
