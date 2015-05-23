@@ -1,19 +1,16 @@
-require "branchinator/jobs/helpers/hosting_provider"
-require "resque/plugins/lock"
-
 module Branchinator
   module Jobs
     class CreateApp
-      extend Resque::Plugins::Lock
-      include HostingProvider
+      extend HostingProvider
       @queue = "apps"
 
-      def self.lock(details)
-        details[:app_name]
+      def self.lock(params)
+        params['app_name']
       end
 
-      def self.perform(app_name)
-        hosting_provider.create_app(details[:app_name])
+      def self.perform(params)
+        app = hosting_provider.create_app(params['app_name'])
+        puts "App created: #{app['web_url']}"
       end
     end
   end

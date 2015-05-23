@@ -6,11 +6,11 @@ require "zlib"
 module Branchinator
   module Services
     class Github
-      def initialize(event, payload, jobs)
+      def initialize(event, payload, resque)
         @event = event
         payload = JSON.parse(payload) if payload.is_a?(String)
         @payload = Hashie::Mash.new(payload)
-        @jobs = jobs
+        @resque = resque
       end
 
       def enact
@@ -24,16 +24,16 @@ module Branchinator
       def enact_create
         raise NotImplementedError, "Only branch creations are implemented" unless @payload.ref_type == "branch"
         app_name = app_name_for(@payload.repository, @payload.ref)
-        @jobs.enqueue(Jobs::CreateApp, app_name: app_name)
+        @resque.enqueue(Jobs::CreateApp, app_name: app_name)
       end
 
       def enact_push
         raise NotImplementedError, "Cannot determine the branch from the ref" unless ref = @payload.ref.match(%r{^refs/heads/(?<branch>.*)$})
         app_name = app_name_for(@payload.repository, ref['branch'])
         if @payload.deleted
-          @jobs.enqueue(Jobs::DeleteApp, app_name: app_name)
+          @resque.enqueue(Jobs::DeleteApp, app_name: app_name)
         else
-          @jobs.enqueue(Jobs::DeployApp,
+          @resque.enqueue(Jobs::DeployApp,
             app_name: app_name,
             git_url: @payload.repository.git_url,
             commit: @payload.after

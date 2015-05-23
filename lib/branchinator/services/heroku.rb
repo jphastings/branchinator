@@ -30,9 +30,10 @@ module Branchinator
           heroku_remote = git.add_remote("heroku", app['git_url'])
           git.chdir do
             git.checkout(commit)
-            git.push(heroku_remote, "#{commit}:refs/heads/master")
+            p git.push(heroku_remote, "#{commit}:refs/heads/master")
           end
         end
+        true
       end
     end
   end

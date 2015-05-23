@@ -1,23 +1,21 @@
-require "branchinator/jobs/helpers/hosting_provider"
-require "resque/plugins/lock"
-
 module Branchinator
   module Jobs
     class DeployApp
-      extend Resque::Plugins::Lock
-      include HostingProvider
+      extend HostingProvider
       @queue = "apps"
 
-      def self.lock(details)
-        details[:app_name]
+      def self.lock(params)
+        params['app_name']
       end
 
-      def self.perform(details)
+      def self.perform(params)
+        puts "Starting deploy: #{params['git_url']}##{params['commit']} to #{params['app_name']}"
         hosting_provider.deploy_app(
-          app_name: details[:app_name],
-          git_url: details[:git_url],
-          commit: details[:commit]
+          app_name: params['app_name'],
+          git_url: params['git_url'],
+          commit: params['commit']
         )
+        puts "App deployed: #{params['git_url']}##{params['commit']} to #{params['app_name']}"
       end
     end
   end

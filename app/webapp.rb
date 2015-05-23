@@ -7,18 +7,20 @@ require "branchinator/services/heroku"
 module Branchinator
   class WebApp < Sinatra::Base
     configure do
-      set :jobs, Resque
+      Resque.redis = Redis.new
+      set :resque, Resque
     end
 
     post "/hooks/github" do
       request.body.rewind
       
-      Services::Github.new(
+      github = Services::Github.new(
         env['HTTP_X_GITHUB_EVENT'],
         request.body.read,
-        settings.jobs
-      ).enact
+        settings.resque
+      )
 
+      halt(500) unless github.enact
       halt 202
     end
   end
