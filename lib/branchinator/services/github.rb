@@ -13,6 +13,10 @@ module Branchinator
         @resque = resque
       end
 
+      def repo_name
+        @payload.repository.full_name
+      end
+
       def enact
         enact_method = "enact_#{@event.downcase}"
         raise NotImplementedError, "Coping with the Github #{@event} event is not implemented" unless respond_to?(enact_method, true)

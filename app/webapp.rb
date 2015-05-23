@@ -1,27 +1,25 @@
 require "sinatra/base"
-require "resque"
-require "branchinator/jobs"
-require "branchinator/services/github"
-require "branchinator/services/heroku"
+require "sinatra/activerecord"
+require "omniauth"
+require "omniauth-github"
+require "omniauth-heroku"
+require_relative "models"
+require_relative "env"
 
 module Branchinator
   class WebApp < Sinatra::Base
-    configure do
-      Resque.redis = Redis.new
-      set :resque, Resque
+    register Sinatra::ActiveRecordExtension
+
+    use Rack::Session::Cookie
+    use OmniAuth::Builder do
+      provider :github, ENV['GITHUB_KEY'], ENV['GITHUB_SECRET']
     end
 
-    post "/hooks/github" do
-      request.body.rewind
-      
-      github = Services::Github.new(
-        env['HTTP_X_GITHUB_EVENT'],
-        request.body.read,
-        settings.resque
-      )
-
-      halt(500) unless github.enact
-      halt 202
+    configure do
+      set :resque, Resque
     end
   end
 end
+
+require_relative "webap_hooks"
+require_relative "webap_user"
