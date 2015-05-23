@@ -19,8 +19,9 @@ ActiveRecord::Schema.define(version: 6) do
   create_table "credentials", force: :cascade do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "service",    limit: 120, null: false
-    t.text     "data",                   null: false
+    t.string   "service",    null: false
+    t.string   "uid",        null: false
+    t.text     "data",       null: false
   end
 
   create_table "credentials_repos", force: :cascade do |t|
@@ -50,7 +51,7 @@ ActiveRecord::Schema.define(version: 6) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "username",      limit: 120, null: false
-    t.string   "password_hash", limit: 128, null: false
+    t.string   "password_hash", limit: 128
   end
 
   add_index "users", ["username"], name: "index_users_on_username", unique: true, using: :btree
