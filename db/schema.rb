@@ -11,27 +11,32 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 6) do
+ActiveRecord::Schema.define(version: 7) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
+  create_table "credential_rights", force: :cascade do |t|
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
+    t.integer  "user_id",                      null: false
+    t.integer  "credential_id",                null: false
+    t.boolean  "owner",         default: true, null: false
+  end
+
   create_table "credentials", force: :cascade do |t|
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string   "service",    null: false
     t.string   "uid",        null: false
     t.text     "data",       null: false
   end
 
   create_table "credentials_repos", force: :cascade do |t|
-    t.integer "repo_id"
-    t.integer "credential_id"
-  end
-
-  create_table "credentials_users", force: :cascade do |t|
-    t.integer "user_id"
-    t.integer "credential_id"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+    t.integer  "repo_id"
+    t.integer  "credential_id"
   end
 
   create_table "repos", force: :cascade do |t|
@@ -43,13 +48,24 @@ ActiveRecord::Schema.define(version: 6) do
   add_index "repos", ["name"], name: "index_repos_on_name", unique: true, using: :btree
 
   create_table "repos_users", force: :cascade do |t|
-    t.integer "repo_id"
-    t.integer "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer  "repo_id"
+    t.integer  "user_id"
+  end
+
+  create_table "sessions", force: :cascade do |t|
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+    t.integer  "user_id",                   null: false
+    t.string   "token",                     null: false
+    t.boolean  "active",     default: true, null: false
+    t.text     "details"
   end
 
   create_table "users", force: :cascade do |t|
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
     t.string   "username",      limit: 120, null: false
     t.string   "password_hash", limit: 128
   end

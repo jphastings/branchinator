@@ -1,5 +1,7 @@
 require "uri"
 require "resque"
+require "active_record"
+require_relative "models"
 
 module Branchinator
   Resque.redis = Redis.new

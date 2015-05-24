@@ -41,6 +41,7 @@ GEM
     multi_json (1.11.0)
     multi_xml (0.5.5)
     multipart-post (2.0.0)
+    naught (1.0.0)
     netrc (0.10.3)
     oauth2 (1.0.0)
       faraday (>= 0.8, < 0.10)
@@ -116,6 +117,7 @@ DEPENDENCIES
   foreman (~> 0.77)
   git (~> 1.2)
   hashie (~> 3.4)
+  naught
   omniauth (~> 1.2)
   omniauth-github (~> 1.1)
   omniauth-heroku (~> 0.2)

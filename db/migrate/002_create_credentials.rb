@@ -1,7 +1,7 @@
 class CreateCredentials < ActiveRecord::Migration
   def change
     create_table :credentials do |t|
-      t.timestamps
+      t.timestamps null: false
       t.string :service, null: false
       t.string :uid, null: false
       t.text   :data, null: false

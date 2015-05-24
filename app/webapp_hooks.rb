@@ -7,8 +7,8 @@ module Branchinator
     post "/hooks/github" do
       request.body.rewind
       
-      github = Services::Github.new(
-        env['HTTP_X_GITHUB_EVENT'],
+      github = Services::Github::WebhookPayload.new(
+        env,
         request.body.read,
         settings.resque
       )
