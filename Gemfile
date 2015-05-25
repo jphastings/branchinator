@@ -19,6 +19,7 @@ gem "omniauth-heroku", "~> 0.2"
 gem "activerecord", "~> 4.2"
 gem "sinatra-activerecord", "~> 2.0"
 gem "pg", "~> 0.18"
+gem "active_model_serializers"
 
 gem "naught"
 

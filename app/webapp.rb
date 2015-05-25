@@ -6,9 +6,12 @@ require "omniauth-github"
 require "omniauth-heroku"
 require_relative "env"
 
+require_relative "webapp_helpers"
+
 module Branchinator
   class WebApp < Sinatra::Base
     register Sinatra::ActiveRecordExtension
+    helpers WebAppHelpers
 
     use Rack::Session::Cookie, key: 'branchinator',
                              # domain: 'foo.com',
@@ -24,53 +27,14 @@ module Branchinator
 
     configure do
       set :resque, Resque
-    end
-
-    helpers do
-      def current_user
-        current_session.user
-      end
-
-      def current_session
-        @current_session ||= catch(:no_session) do
-          token = session['access_token']
-          token ||= env['HTTP_AUTHORIZATION'].match(/^Bearer (.+)$/)[1] rescue nil
-          throw :no_session if token.nil?
-          session = Session.find_by(token: token, active: true)
-          throw :no_session if session.nil?
-          request_reauth! unless session.age < ENV['SESSION_LIFETIME'].to_f
-          session || Naught.build { |c| c.mimic Session }.new
-        end
-      end
-      alias :ensure_session_trust! :current_session
-
-      def request_reauth!
-        halt(419, {
-          error: "IdentityUncertain",
-          developerMessage: "The access token provided is no longer trusted enough for this action."
-        })
-      end
-
-      def username_from_auth(auth)
-        auth.info.nickname || [auth.provider, auth.uid].join("-")
-      end
-
-      def json_list_of(list)
-        {
-          count: list.count,
-          items: [],
-          links: {}
-        }.to_json
-      end
+      set(:auth) { |level| condition { authd_only! if level == :user } }
     end
 
     before do
       mime_type :json
     end
 
-    before '/auth/:service' do
-      ensure_session_trust!
-    end
+    # TODO: Logging in with a second service when the access token is no longer trusted
 
     get '/auth/:service/callback' do
       auth = request.env['omniauth.auth']
