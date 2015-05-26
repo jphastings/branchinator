@@ -9,12 +9,12 @@ module Branchinator
       end
 
       def self.perform(params)
-        puts "Starting deploy: <TODO: name> to #{params['app_name']}"
+        puts "Starting deploy to #{params['app_name']}: #{params['code'].inspect}"
         hosting_provider(params['hoster_id']).deploy_app(
           app_name: params['app_name'],
           code: params['code']
         )
-        puts "App deployed: <TODO: name> to #{params['app_name']}"
+        puts "App deployed to #{params['app_name']}"
       end
     end
   end
