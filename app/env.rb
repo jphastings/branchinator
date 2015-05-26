@@ -4,7 +4,7 @@ require "active_record"
 require_relative "models"
 
 module Branchinator
-  Resque.redis = Redis.new
+  Resque.redis = Redis.new(url: ENV['REDIS_URL'])
   
   begin
     db = URI.parse(ENV['DATABASE_URL'])
