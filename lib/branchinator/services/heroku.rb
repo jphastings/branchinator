@@ -4,8 +4,8 @@ require 'git'
 module Branchinator
   module Services
     class Heroku
-      def initialize
-        @heroku = PlatformAPI.connect_oauth(ENV['HEROKU_OAUTH_TOKEN'])
+      def initialize(token)
+        @heroku = PlatformAPI.connect_oauth(token)
       end
 
       def create_app(app_name)
@@ -21,18 +21,27 @@ module Branchinator
 
       def delete_app(app_name)
         @heroku.app.delete(app_name)
+      rescue Excon::Errors::NotFound
+        { 'name' => app_name }
       end
 
-      def deploy_app(app_name:, git_url:, commit:)
+      def deploy_app(app_name:, code:)
         app = find_or_create_app(app_name)
         Dir.mktmpdir do |dir|
-          git = Git.clone(git_url, app_name, path: dir)
-          heroku_remote = git.add_remote("heroku", app['git_url'])
+          git = Git.clone(code['git_url'], app_name, path: dir)
           git.chdir do
-            git.checkout(commit)
-            p git.push(heroku_remote, "#{commit}:refs/heads/master")
+            heroku_remote = git.add_remote("heroku", app['git_url'])
+            patch_remote = git.add_remote("patch", code['then']['git_url']) if code['then']
+            
+            git.checkout(code['commit'])
+            if patch_remote
+              git.pull("patch", code['then']['commit'])
+            end
+            git.push(heroku_remote, "HEAD:refs/heads/master")
           end
         end
+        # TODO: Capture git errors
+        # TODO: Capture git push responses
         true
       end
     end

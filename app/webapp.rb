@@ -28,10 +28,15 @@ module Branchinator
     configure do
       set :resque, Resque
       set(:auth) { |level| condition { authd_only! if level == :user } }
+      set(:body) { |format| condition {
+        raise NotImplementedError, "Cannot deserialize #{format} bodies" unless format.to_sym == :json
+        request.body.rewind
+        @json_body = JSON.parse(request.body.read)
+      } }
     end
 
     before do
-      mime_type :json
+      content_type :json
     end
 
     # TODO: Logging in with a second service when the access token is no longer trusted

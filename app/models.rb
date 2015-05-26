@@ -2,14 +2,6 @@ require "naught"
 require_relative "serializers"
 
 module Branchinator
-  module Serializer
-    def serializers
-      self.map do |record|
-        Branchinator.const_get("#{record.class.name}Serializer").new(record)
-      end
-    end
-  end
-
   class User < ActiveRecord::Base
     has_many :credential_rights
     has_many :credentials, through: :credential_rights
@@ -24,8 +16,12 @@ module Branchinator
   end
 
   class Repo < ActiveRecord::Base
-    has_and_belongs_to_many :credentials
-    has_and_belongs_to_many :users
+    belongs_to :source, # TODO: Scope to sources
+      class_name: 'Credential',
+      foreign_key: 'source'
+    belongs_to :hoster, # TODO: Scope to hosters
+      class_name: 'Credential',
+      foreign_key: 'hoster'
   end
 
   class CredentialRight < ActiveRecord::Base
@@ -39,6 +35,7 @@ module Branchinator
     has_and_belongs_to_many :repos
     serialize :data
     scope :hosters, -> { where(service: %w{heroku}) }
+    scope :sources, -> { where(service: %w{github}) }
 
     def owner
       credential_rights.where(owner: true).first.user

@@ -21,25 +21,28 @@ module Branchinator
       halt(419, {
         error: "IdentityUncertain",
         developerMessage: "The access token provided is no longer trusted enough for this action."
-      })
+      }.to_json)
     end
 
     def authd_only!
       halt(401, {
         error: "NotAuthenticated",
         developerMessage: "No valid authentication token was given."
-      }) if current_user.nil?
+      }.to_json) if current_user.nil?
     end
 
     def username_from_auth(auth)
       auth.info.nickname || [auth.provider, auth.uid].join("-")
     end
 
+    def json_body
+      @json_body
+    end
+
     def json_list_of(list)
-      list.extend(Serializer)
       {
         count: list.count,
-        items: list.serializers,
+        items: list,
         links: {}
       }.to_json(root: false)
     end

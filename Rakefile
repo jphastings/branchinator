@@ -11,6 +11,7 @@ end
 namespace :resque do
   task :setup do
     require 'branchinator/jobs'
+    require './app/env'
   end
 end
 

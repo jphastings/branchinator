@@ -13,9 +13,13 @@ module Branchinator
         settings.resque
       )
 
-      halt(403) unless Repo.find_by(name: github.repo_name)
-      halt(500) unless github.enact
-      halt 202
+      repo = Repo.find_by(
+        name: github.repo_name,
+        service: 'github')
+
+      halt(403) unless repo
+      halt(500) unless github.enact(repo.source, repo.hoster)
+      halt(202)
     end
   end
 end

@@ -9,7 +9,7 @@ module Branchinator
       end
 
       def self.perform(params)
-        app = hosting_provider.delete_app(params['app_name'])
+        app = hosting_provider(params['hoster_id']).delete_app(params['app_name'])
         puts "App deleted: #{app['name']}"
       end
     end
