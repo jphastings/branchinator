@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 7) do
+ActiveRecord::Schema.define(version: 6) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -32,16 +32,10 @@ ActiveRecord::Schema.define(version: 7) do
     t.text     "data",       null: false
   end
 
-  create_table "credentials_repos", force: :cascade do |t|
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.integer  "repo_id"
-    t.integer  "credential_id"
-  end
-
   create_table "repos", force: :cascade do |t|
-    t.string  "name",   null: false
-    t.integer "host",   null: false
+    t.string  "name",    null: false
+    t.string  "service", null: false
+    t.integer "hoster",  null: false
     t.integer "source"
   end
 
