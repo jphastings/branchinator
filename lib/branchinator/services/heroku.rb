@@ -6,6 +6,11 @@ module Branchinator
     class Heroku
       def initialize(token)
         @heroku = PlatformAPI.connect_oauth(token)
+        
+        keys = @heroku.key.list.map { |k| k['fingerprint'] }
+        if !keys.include?(ENV['DEPLOY_KEY_FINGERPRINT'])
+          @heroku.key.create(public_key: ENV['DEPLOY_KEY_PUBLIC'])
+        end
       end
 
       def create_app(app_name)
