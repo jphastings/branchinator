@@ -43,7 +43,10 @@ module Branchinator
           k.puts ENV['DEPLOY_KEY_PRIVATE']
           k.puts "-----END RSA PRIVATE KEY-----"
         end
-        puts "Private key written to #{key_file}"
+        open("#{key_file}.pub", "w") do |k|
+          k.puts ENV['DEPLOY_KEY_PUBLIC']
+        end
+        puts "Private key written to #{key_file}[.pub]"
       end
     end
   end
