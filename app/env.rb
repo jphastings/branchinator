@@ -33,7 +33,7 @@ module Branchinator
     if !available_keys.include?(ENV['DEPLOY_KEY_FINGERPRINT'])
       puts "Private key fingerprint not present in ssh agent"
 
-      key_file = File.expand_path("~/.ssh/branchinator_id_rsa")
+      key_file = File.expand_path("~/.ssh/id_rsa")
       if !File.exist?(key_file)
         puts "Private key file not present"
         raise "No private key variable to write" unless ENV['DEPLOY_KEY_PRIVATE']
