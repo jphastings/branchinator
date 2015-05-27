@@ -7,9 +7,13 @@ module Branchinator
       def initialize(token)
         @heroku = PlatformAPI.connect_oauth(token)
         
-        keys = @heroku.key.list.map { |k| k['fingerprint'] }
-        if !keys.include?(ENV['DEPLOY_KEY_FINGERPRINT'])
-          @heroku.key.create(public_key: ENV['DEPLOY_KEY_PUBLIC'])
+        begin
+          keys = @heroku.key.list.map { |k| k['fingerprint'] }
+          if !keys.include?(ENV['DEPLOY_KEY_FINGERPRINT'])
+            @heroku.key.create(public_key: ENV['DEPLOY_KEY_PUBLIC'])
+          end
+        rescue Excon::Errors::Unauthorized
+          puts "Could not access Heroku keys"
         end
       end
 
