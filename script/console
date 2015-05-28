@@ -6,11 +6,9 @@ libs = []
 libs << "irb/completion"
 libs << File.expand_path(File.join(File.dirname(__FILE__),'env.rb'))
 
-command_line = []
-command_line << "irb"
+command_line = ["bundle exec irb -I lib -I app"]
 command_line << libs.inject("") { |acc, lib| acc + %( -r "#{lib}") }
 command_line << "--simple-prompt"
 command = command_line.join(" ")
 
-puts "Application console interface."
 exec command

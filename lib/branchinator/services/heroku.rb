@@ -1,9 +1,25 @@
 require 'platform-api'
-require 'git'
+require 'tempfile'
+require 'rugged'
 
 module Branchinator
   module Services
     class Heroku
+      # TODO: readable by this user only
+      public_key = Tempfile.new('id_rsa.pub')
+      public_key.write(ENV['DEPLOY_KEY_PUBLIC'])
+      public_key.rewind
+      private_key = Tempfile.new('id_rsa')
+      private_key.write(Base64.strict_decode64(ENV['DEPLOY_KEY_PRIVATE']))
+      private_key.rewind
+      
+      CREDENTIALS = Rugged::Credentials::SshKey.new(
+        username: 'git',
+        publickey: public_key.path,
+        privatekey: private_key.path,
+        passphrase: ENV['DEPLOY_KEY_PASSPHRASE']
+      )
+
       def initialize(token)
         @heroku = PlatformAPI.connect_oauth(token)
         
@@ -37,21 +53,21 @@ module Branchinator
       def deploy_app(app_name:, code:)
         app = find_or_create_app(app_name)
         Dir.mktmpdir do |dir|
-          git = Git.clone(code['git_url'], app_name, path: dir)
-          git.chdir do
-            heroku_remote = git.add_remote("heroku", app['git_url'])
-            patch_remote = git.add_remote("patch", code['then']['git_url']) if code['then']
-            
-            git.checkout(code['commit'])
-            if patch_remote
-              git.pull("patch", code['then']['commit'])
-            end
-            git.push(heroku_remote, "HEAD:refs/heads/master")
+          repo = Rugged::Repository.clone_at(
+            code['git_url'],
+            dir,
+            credentials: CREDENTIALS
+          )
+          # Hack to get the URL looking right - why is this necessary?
+          heroku = repo.remotes.create("heroku", app['git_url'])
+          repo.remotes.create("patch", code['then']['git_url']) if code['then']
+          repo.checkout(code['commit'])
+          if false
+            # TODO: Merge in code['then']['commit']
           end
+          repo.push("heroku", "HEAD:refs/heads/master", credentials: CREDENTIALS)
         end
-        # TODO: Capture git errors
         # TODO: Capture git push responses
-        true
       end
     end
   end
