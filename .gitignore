@@ -1,2 +1,5 @@
 .env*
 offline/
+vendor
+.bundle
+.irb-history

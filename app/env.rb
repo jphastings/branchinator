@@ -24,30 +24,4 @@ module Branchinator
       reconnect: true
     )
   end
-
-  begin
-    available_keys = `ssh-add -l`.split("\n").map { |l|
-      l.match(/^\d* ([0-9a-f:]+) $/) ? $1 : nil
-    }.compact
-
-    if !available_keys.include?(ENV['DEPLOY_KEY_FINGERPRINT'])
-      puts "Private key fingerprint not present in ssh agent"
-
-      key_file = File.expand_path("~/.ssh/id_rsa")
-      if !File.exist?(key_file)
-        puts "Private key file not present"
-        raise "No private key variable to write" unless ENV['DEPLOY_KEY_PRIVATE']
-        FileUtils.mkdir_p(File.dirname(key_file))
-        open(key_file, "w") do |k|
-          k.puts "-----BEGIN RSA PRIVATE KEY-----"
-          k.puts ENV['DEPLOY_KEY_PRIVATE']
-          k.puts "-----END RSA PRIVATE KEY-----"
-        end
-        open("#{key_file}.pub", "w") do |k|
-          k.puts ENV['DEPLOY_KEY_PUBLIC']
-        end
-        puts "Private key written to #{key_file}[.pub]"
-      end
-    end
-  end
 end

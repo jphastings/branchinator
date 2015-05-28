@@ -7,7 +7,7 @@ gem "foreman", "~> 0.77"
 gem "puma", "~> 2.11"
 gem "platform-api", "~> 0.2"
 gem "hashie", "~> 3.4"
-gem "git", "~> 1.2"
+gem 'rugged', git: 'git://github.com/libgit2/rugged.git', submodules: true
 
 gem "resque", "~> 1.25"
 gem "resque-lock", "~> 1.1"
